@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Quillbase – AI writing studio</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Source+Serif+4:wght@400;600&display=swap">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f2f5f9;--panel:#fff;--ink:#0f1b2d;--mute:#5b6779;--rule:#d9e0ea;--acc:#2b55e6;--accink:#fff;--ok:#0f7a56;--bad:#b3261e;
+--hd:"Bricolage Grotesque",system-ui,sans-serif;--bd:"Source Serif 4",Georgia,serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0c121c;--panel:#141d2b;--ink:#e8edf5;--mute:#93a0b5;--rule:#26334a;--acc:#7b97ff;--accink:#0c121c;--ok:#4cc79a;--bad:#ff8a80}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0c121c;--panel:#141d2b;--ink:#e8edf5;--mute:#93a0b5;--rule:#26334a;--acc:#7b97ff;--accink:#0c121c;--ok:#4cc79a;--bad:#ff8a80}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--hd)}
+header{display:flex;align-items:center;gap:20px;padding:14px 24px;border-bottom:1px solid var(--rule);background:var(--panel);flex-wrap:wrap}
+.logo{font-weight:700;font-size:20px;letter-spacing:-.02em}
+nav{display:flex;gap:4px;flex:1}
+nav button{background:none;border:0;color:var(--mute);font:500 15px var(--hd);padding:8px 12px;border-radius:6px;cursor:pointer}
+nav button[aria-current=true]{color:var(--ink);background:var(--bg)}
+.meter{text-align:right;line-height:1.1}
+.meter b{font-size:22px;font-variant-numeric:tabular-nums}.meter small{display:block;color:var(--mute);font-size:12px}
+main{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+h1{font-size:30px;letter-spacing:-.02em;margin:0 0 6px}p.sub{color:var(--mute);margin:0 0 22px}
+.card{background:var(--panel);border:1px solid var(--rule);border-radius:10px;padding:18px}
+label{display:block;font-size:13px;color:var(--mute);margin:12px 0 4px}
+textarea,input,select{width:100%;font:16px var(--bd);color:var(--ink);background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:10px}
+textarea{min-height:110px;resize:vertical}
+.row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:620px){.row{grid-template-columns:1fr}}
+button.go{background:var(--acc);color:var(--accink);border:0;border-radius:8px;font:700 15px var(--hd);padding:11px 20px;cursor:pointer;margin-top:16px}
+button.go:disabled{opacity:.5;cursor:not-allowed}
+button.alt{background:none;border:1px solid var(--rule);color:var(--ink);border-radius:8px;font:500 14px var(--hd);padding:7px 12px;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.out{font:18px/1.7 var(--bd);white-space:pre-wrap;margin-top:18px}
+.phase{color:var(--mute);font-size:14px;margin-top:14px}
+.err{color:var(--bad);margin-top:12px;font-size:14px}.note{color:var(--mute);font-size:13px;margin-top:10px}
+.list{display:grid;gap:10px}
+.item{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 16px;border:1px solid var(--rule);background:var(--panel);border-radius:10px}
+.item h3{margin:0;font-size:16px}.item span{color:var(--mute);font-size:13px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;padding:8px;border-bottom:1px solid var(--rule)}td.n{font-variant-numeric:tabular-nums}
+.pos{color:var(--ok)}.neg{color:var(--bad)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Quillbase</div>
+  <nav>
+    <button data-v="create" aria-current="true">Create</button>
+    <button data-v="docs">Documents</button>
+    <button data-v="usage">Usage</button>
+  </nav>
+  <div class="meter"><b id="bal">…</b><small>credits left</small></div>
+</header>
+<main>
+<section id="v-create">
+  <h1>What should we write?</h1>
+  <p class="sub">Each finished article costs 1 credit. Failed runs are refunded.</p>
+  <div class="card">
+    <label for="brief">Topic or brief</label>
+    <textarea id="brief" placeholder="e.g. A beginner’s guide to composting in small apartments"></textarea>
+    <div class="row">
+      <div><label for="voice">Voice</label><select id="voice"><option>Friendly blog</option><option>Professional</option><option>Product page</option><option>Concise news</option></select></div>
+      <div><label for="words">Word count</label><select id="words"><option>400</option><option selected>800</option><option>1200</option></select></div>
+      <div><label for="kw">Keywords (comma separated)</label><input id="kw"></div>
+    </div>
+    <button class="go" id="gen">Write article (1 credit)</button>
+    <div class="phase" id="phase" role="status"></div>
+    <div class="err" id="err" role="alert"></div>
+  </div>
+  <div id="result" hidden>
+    <div class="out" id="out"></div>
+    <div class="tools"><button class="alt" id="copy">Copy</button><button class="alt" id="dl">Download .md</button></div>
+    <div class="note">Saved to Documents.</div>
+  </div>
+</section>
+<section id="v-docs" hidden>
+  <h1>Documents</h1><p class="sub">Your saved drafts.</p>
+  <div class="list" id="doclist"></div>
+  <div id="editor" hidden>
+    <div class="tools"><button class="alt" id="back">Back to list</button><button class="alt" id="save">Save changes</button><button class="alt" id="ecopy">Copy</button><button class="alt" id="edl">Download .md</button><button class="alt" id="del">Delete</button></div>
+    <input id="etitle" aria-label="Title" style="font:700 20px var(--hd);margin-bottom:10px">
+    <textarea id="ebody" style="min-height:420px;font:17px/1.6 var(--bd)" aria-label="Article text"></textarea>
+  </div>
+</section>
+<section id="v-usage" hidden>
+  <h1>Usage</h1><p class="sub">Every credit change is logged here.</p>
+  <div class="card"><table><thead><tr><th>When</th><th>Reason</th><th>Change</th></tr></thead><tbody id="ledger"></tbody></table></div>
+  <div class="note" id="stor"></div>
+</section>
+</main>
+<script>
+(function(){
+var START=10000, COST=1, $=function(i){return document.getElementById(i)};
+var db=null, uid=null, sample=null, dl=null, balance=START, docs=[], ledger=[], cur=null, busy=false;
+function pth(s){return "data/users/"+uid+"/"+s}
+function show(v){["create","docs","usage"].forEach(function(n){$("v-"+n).hidden=n!==v});
+  document.querySelectorAll("nav button").forEach(function(b){b.setAttribute("aria-current",b.dataset.v===v)});
+  if(v==="docs"){$("editor").hidden=true;$("doclist").hidden=false}}
+document.querySelectorAll("nav button").forEach(function(b){b.onclick=function(){show(b.dataset.v)}});
+function paint(){
+  $("bal").textContent=balance.toLocaleString("en-US");
+  var l=$("doclist");l.textContent="";
+  if(!docs.length){var e=document.createElement("div");e.className="note";e.textContent="No documents yet. Write your first article in Create.";l.appendChild(e)}
+  docs.forEach(function(d){var it=document.createElement("div");it.className="item";
+    var t=document.createElement("div"),h=document.createElement("h3"),s=document.createElement("span");
+    h.textContent=d.title;s.textContent=new Date(d.at).toLocaleString();t.appendChild(h);t.appendChild(s);
+    var b=document.createElement("button");b.className="alt";b.textContent="Open";b.onclick=function(){openDoc(d)};
+    it.appendChild(t);it.appendChild(b);l.appendChild(it)});
+  var tb=$("ledger");tb.textContent="";
+  ledger.slice().sort(function(a,b){return b.at-a.at}).slice(0,60).forEach(function(r){
+    var tr=document.createElement("tr");
+    [new Date(r.at).toLocaleString(),r.reason,(r.delta>0?"+":"")+r.delta].forEach(function(x,i){var td=document.createElement("td");td.textContent=x;if(i===2){td.className="n "+(r.delta>0?"pos":"neg")}tr.appendChild(td)});
+    tb.appendChild(tr)});
+  $("stor").textContent=db?"Balance and documents are saved to your account.":"Storage isn’t available here, so this session isn’t saved.";
+}
+async function setBal(n,reason,delta){
+  balance=n;ledger.push({at:Date.now(),reason:reason,delta:delta});
+  if(db){try{await db.doc(pth("account")).set({balance:n});await db.collection(pth("ledger")).add({at:Date.now(),reason:reason,delta:delta})}catch(e){}}
+  paint()}
+async function init(){
+  paint();
+  try{var u=await claude.use("user");uid=u&&await u.id();db=uid?await claude.use("db"):null}catch(e){db=null}
+  try{sample=await claude.use("sample")}catch(e){sample=null}
+  try{dl=await claude.use("downloads")}catch(e){dl=null}
+  if(db){try{
+    var a=await db.doc(pth("account")).get();
+    if(a.exists){balance=a.data().balance}else{await db.doc(pth("account")).set({balance:START});await db.collection(pth("ledger")).add({at:Date.now(),reason:"Welcome credits",delta:START})}
+    var d=await db.collection(pth("docs")).orderBy("at","desc").limit(100).get();docs=d.docs.map(function(x){var o=x.data();o.id=x.id;return o});
+    var g=await db.collection(pth("ledger")).orderBy("at","desc").limit(60).get();ledger=g.docs.map(function(x){return x.data()});
+  }catch(e){}}
+  if(!ledger.length){ledger=[{at:Date.now(),reason:"Welcome credits",delta:START}]}
+  paint()}
+$("gen").onclick=async function(){
+  if(busy)return;var brief=$("brief").value.trim();$("err").textContent="";
+  if(!brief){$("err").textContent="Enter a topic or brief first.";return}
+  if(balance<COST){$("err").textContent="You’re out of credits. Generation is paused.";return}
+  if(!sample){$("err").textContent="Writing isn’t available in this view. Open the published page while signed in to Claude.";return}
+  busy=true;$("gen").disabled=true;$("result").hidden=true;
+  await setBal(balance-COST,"Reserved for article",-COST);
+  var ok=false;
+  try{
+    $("phase").textContent="Analyzing brief…";
+    var p="Write a "+$("words").value+"-word article in the voice: "+$("voice").value+".\nTopic: "+brief+"\nKeywords to include naturally: "+($("kw").value||"none")+"\nUse a clear title on the first line, then paragraphs with short subheadings. Output plain text only, no markdown symbols.";
+    $("phase").textContent="Drafting…";$("result").hidden=false;$("out").textContent="";
+    var r=await sample(p,{cache:false,modelTier:"default",onText:function(t){$("out").textContent=t.text}});
+    var txt=(r.text||"").trim();if(!txt)throw new Error("empty");
+    $("out").textContent=txt;ok=true;
+    var title=txt.split("\n")[0].slice(0,90)||"Untitled";
+    var rec={title:title,body:txt,at:Date.now()};
+    if(db){try{var ref=await db.collection(pth("docs")).add(rec);rec.id=ref.id}catch(e){}}
+    docs.unshift(rec);cur=rec;
+    ledger.push({at:Date.now(),reason:"Article: "+title.slice(0,40),delta:0});
+    $("phase").textContent="Done. 1 credit used.";
+  }catch(e){
+    if(!ok){await setBal(balance+COST,"Refund: generation failed",COST);$("result").hidden=true;
+      $("err").textContent=(e&&e.code==="rate_limited")?"Too many requests. Wait a moment, then try again. Your credit was refunded.":"Generation failed. Your credit was refunded.";$("phase").textContent=""}}
+  busy=false;$("gen").disabled=false;paint()};
+function copy(t){try{navigator.clipboard.writeText(t)}catch(e){}}
+async function save(name,t){if(dl){try{await dl.save({filename:name.replace(/[^\w\- ]+/g,"").trim().slice(0,50)+".md",data:t})}catch(e){}}else{copy(t)}}
+$("copy").onclick=function(){copy($("out").textContent)};
+$("dl").onclick=function(){save(cur?cur.title:"article",$("out").textContent)};
+function openDoc(d){cur=d;$("doclist").hidden=true;$("editor").hidden=false;$("etitle").value=d.title;$("ebody").value=d.body}
+$("back").onclick=function(){$("editor").hidden=true;$("doclist").hidden=false};
+$("save").onclick=async function(){if(!cur)return;cur.title=$("etitle").value;cur.body=$("ebody").value;
+  if(db&&cur.id){try{await db.doc(pth("docs/"+cur.id)).update({title:cur.title,body:cur.body})}catch(e){}}paint();$("back").onclick()};
+$("ecopy").onclick=function(){copy($("ebody").value)};
+$("edl").onclick=function(){save($("etitle").value,$("ebody").value)};
+$("del").onclick=async function(){if(!cur||!confirm("Delete this document?"))return;
+  if(db&&cur.id){try{await db.doc(pth("docs/"+cur.id)).delete()}catch(e){}}
+  docs=docs.filter(function(x){return x!==cur});cur=null;paint();$("back").onclick()};
+init();
+})();
+</script>
+</body>
+</html>
